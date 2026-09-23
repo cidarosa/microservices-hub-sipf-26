@@ -1,7 +1,5 @@
 package com.github.cidarosa.ms.pagamentos.dto;
 
-import com.github.cidarosa.ms.pagamentos.entities.Pagamento;
-import com.github.cidarosa.ms.pagamentos.entities.Status;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -15,11 +13,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class PagamentoDTO {
+public class PagamentoRequestDTO {
 
-    private Long id;
-
-    @NotNull(message = "O campo valor é obrigatório")
+     @NotNull(message = "O campo valor é obrigatório")
     @Positive(message = "O campo valor deve ser um número positivo")
     private BigDecimal valor;
 
@@ -39,20 +35,16 @@ public class PagamentoDTO {
     @Size(min = 3, max = 3, message = "O campo código de segurança deve ter 3 caracteres")
     private String codigoSeguranca;
 
-    private Status status;
-
     @NotNull(message = "O campo pedido id é requerido")
     @Positive(message = "O campo pedido id deve ser um número positivo")
     private Long pedidoId;
 
-    public PagamentoDTO(Pagamento pagamento) {
-        id = pagamento.getId();
-        valor = pagamento.getValor();
-        nome = pagamento.getNome();
-        numeroCartao = pagamento.getNumeroCartao();
-        validade = pagamento.getValidade();
-        codigoSeguranca = pagamento.getCodigoSeguranca();
-        status = pagamento.getStatus();
-        pedidoId = pagamento.getPedidoId();
-    }
+//    public PagamentoRequestDTO(Pagamento pagamento) {
+//        valor = pagamento.getValor();
+//        nome = pagamento.getNome();
+//        numeroCartao = pagamento.getNumeroCartao();
+//        validade = pagamento.getValidade();
+//        codigoSeguranca = pagamento.getCodigoSeguranca();
+//        pedidoId = pagamento.getPedidoId();
+//    }
 }

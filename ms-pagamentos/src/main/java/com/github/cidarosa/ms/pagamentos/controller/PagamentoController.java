@@ -1,6 +1,7 @@
 package com.github.cidarosa.ms.pagamentos.controller;
 
-import com.github.cidarosa.ms.pagamentos.dto.PagamentoDTO;
+import com.github.cidarosa.ms.pagamentos.dto.PagamentoRequestDTO;
+import com.github.cidarosa.ms.pagamentos.dto.PagamentoResponseDTO;
 import com.github.cidarosa.ms.pagamentos.service.PagamentoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -16,46 +17,50 @@ import java.util.List;
 @RequestMapping("/pagamentos")
 public class PagamentoController {
 
-    @Autowired
-    private PagamentoService pagamentoService;
+//    @Autowired
+    private final PagamentoService pagamentoService;
+
+    public PagamentoController(PagamentoService pagamentoService) {
+        this.pagamentoService = pagamentoService;
+    }
 
     @GetMapping
-    public ResponseEntity<List<PagamentoDTO>> getAll() {
+    public ResponseEntity<List<PagamentoResponseDTO>> getAll() {
 
-        List<PagamentoDTO> pagamentoDTO = pagamentoService.findAllPagamentos();
+        List<PagamentoResponseDTO> pagamentoDTO = pagamentoService.findAllPagamentos();
 
         return ResponseEntity.ok(pagamentoDTO);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PagamentoDTO> getOne(@PathVariable Long id){
+    public ResponseEntity<PagamentoResponseDTO> getOne(@PathVariable Long id){
 
-        PagamentoDTO pagamentoDTO = pagamentoService.findPagamentoById(id);
+        PagamentoResponseDTO pagamentoDTO = pagamentoService.findPagamentoById(id);
 
         return ResponseEntity.ok(pagamentoDTO);
     }
 
     @PostMapping
-    public ResponseEntity<PagamentoDTO> savePagamento(@RequestBody @Valid PagamentoDTO pagamentoDTO){
+    public ResponseEntity<PagamentoResponseDTO> savePagamento(@RequestBody @Valid PagamentoRequestDTO requestDTO){
 
-        pagamentoDTO = pagamentoService.savePagamento(pagamentoDTO);
+        PagamentoResponseDTO  responseDTO = pagamentoService.savePagamento(requestDTO);
 
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequestUri()
                 .path("/{id}")
-                .buildAndExpand(pagamentoDTO.getId())
+                .buildAndExpand(responseDTO.getId())
                 .toUri();
 
-        return ResponseEntity.created(uri).body(pagamentoDTO);
+        return ResponseEntity.created(uri).body(responseDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PagamentoDTO> updatePagamento(@PathVariable Long id,
-                                                        @RequestBody @Valid PagamentoDTO pagamentoDTO){
+    public ResponseEntity<PagamentoResponseDTO> updatePagamento(@PathVariable Long id,
+                                                                @RequestBody @Valid PagamentoRequestDTO requestDTO){
 
-        pagamentoDTO = pagamentoService.update(id, pagamentoDTO);
+        PagamentoResponseDTO responseDTO = pagamentoService.update(id, requestDTO);
 
-        return ResponseEntity.ok(pagamentoDTO);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @DeleteMapping("/{id}")
@@ -67,9 +72,9 @@ public class PagamentoController {
     }
 
     @PatchMapping("/{id}/confirmar")
-    public ResponseEntity<PagamentoDTO> confirmarPagamentoDoPedido(@PathVariable @NotNull Long id){
+    public ResponseEntity<PagamentoResponseDTO> confirmarPagamentoDoPedido(@PathVariable @NotNull Long id){
 
-        PagamentoDTO dto = pagamentoService.confirmarPagamentoDoPedido(id);
+        PagamentoResponseDTO dto = pagamentoService.confirmarPagamentoDoPedido(id);
 
         return ResponseEntity.ok(dto);
     }

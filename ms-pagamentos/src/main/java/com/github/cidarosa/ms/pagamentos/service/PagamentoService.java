@@ -1,7 +1,8 @@
 package com.github.cidarosa.ms.pagamentos.service;
 
 import com.github.cidarosa.ms.pagamentos.client.PedidoClient;
-import com.github.cidarosa.ms.pagamentos.dto.PagamentoDTO;
+import com.github.cidarosa.ms.pagamentos.dto.PagamentoRequestDTO;
+import com.github.cidarosa.ms.pagamentos.dto.PagamentoResponseDTO;
 import com.github.cidarosa.ms.pagamentos.entities.Pagamento;
 import com.github.cidarosa.ms.pagamentos.entities.Status;
 import com.github.cidarosa.ms.pagamentos.exceptions.PagamentoAprovadoException;
@@ -25,38 +26,38 @@ public class PagamentoService {
     private PedidoClient pedidoClient;
 
     @Transactional(readOnly = true)
-    public List<PagamentoDTO> findAllPagamentos() {
+    public List<PagamentoResponseDTO> findAllPagamentos() {
 
         List<Pagamento> pagamentos = pagamentoRepository.findAll();
 
         return pagamentos.stream()
-                .map(PagamentoDTO::new)
+                .map(PagamentoResponseDTO::new)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public PagamentoDTO findPagamentoById(Long id) {
+    public PagamentoResponseDTO findPagamentoById(Long id) {
 
         Pagamento pagamento = pagamentoRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Recurso não encontrado. ID: " + id)
         );
 
-        return new PagamentoDTO(pagamento);
+        return new PagamentoResponseDTO(pagamento);
     }
 
     @Transactional
-    public PagamentoDTO savePagamento(PagamentoDTO pagamentoDTO) {
+    public PagamentoResponseDTO savePagamento(PagamentoRequestDTO requestDTO) {
 
         Pagamento pagamento = new Pagamento();
-        mapDtoToPagamento(pagamentoDTO, pagamento);
+        mapDtoToPagamento(requestDTO, pagamento);
 
         pagamento.setStatus(Status.CRIADO);
         pagamento = pagamentoRepository.save(pagamento);
-        return new PagamentoDTO(pagamento);
+        return new PagamentoResponseDTO(pagamento);
     }
 
     @Transactional
-    public PagamentoDTO update(Long id, PagamentoDTO pagamentoDTO) {
+    public PagamentoResponseDTO update(Long id, PagamentoRequestDTO requestDTO) {
 
         try {
             Pagamento pagamento = pagamentoRepository.getReferenceById(id);
@@ -67,10 +68,10 @@ public class PagamentoService {
                 );
             }
 
-            mapDtoToPagamento(pagamentoDTO, pagamento);
-            pagamento.setStatus(pagamentoDTO.getStatus());
+            mapDtoToPagamento(requestDTO, pagamento);
+            pagamento.setStatus(Status.CRIADO);
             pagamento = pagamentoRepository.save(pagamento);
-            return new PagamentoDTO(pagamento);
+            return new PagamentoResponseDTO(pagamento);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Recurso não encontrado. ID: " + id);
         }
@@ -88,7 +89,7 @@ public class PagamentoService {
     }
 
     @Transactional
-    public PagamentoDTO confirmarPagamentoDoPedido(Long id) {
+    public PagamentoResponseDTO confirmarPagamentoDoPedido(Long id) {
 
         Pagamento pagamento = pagamentoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado. ID: " + id)
@@ -103,16 +104,16 @@ public class PagamentoService {
         } catch (FeignException e){
             throw new RuntimeException("Falha ao se comunicar com ms-pedidos", e);
         }
-        return new PagamentoDTO(pagamento);
+        return new PagamentoResponseDTO(pagamento);
     }
 
-    private void mapDtoToPagamento(PagamentoDTO pagamentoDTO, Pagamento pagamento) {
+    private void mapDtoToPagamento(PagamentoRequestDTO requestDTO, Pagamento pagamento) {
 
-        pagamento.setValor(pagamentoDTO.getValor());
-        pagamento.setNome(pagamentoDTO.getNome());
-        pagamento.setNumeroCartao(pagamentoDTO.getNumeroCartao());
-        pagamento.setValidade(pagamentoDTO.getValidade());
-        pagamento.setCodigoSeguranca(pagamentoDTO.getCodigoSeguranca());
-        pagamento.setPedidoId(pagamentoDTO.getPedidoId());
+        pagamento.setValor(requestDTO.getValor());
+        pagamento.setNome(requestDTO.getNome());
+        pagamento.setNumeroCartao(requestDTO.getNumeroCartao());
+        pagamento.setValidade(requestDTO.getValidade());
+        pagamento.setCodigoSeguranca(requestDTO.getCodigoSeguranca());
+        pagamento.setPedidoId(requestDTO.getPedidoId());
     }
 }

@@ -1,7 +1,7 @@
 package com.github.cidarosa.ms.pedidos.service;
 
-import com.github.cidarosa.ms.pedidos.dto.ItemDoPedidoDto;
-import com.github.cidarosa.ms.pedidos.dto.PedidoDto;
+import com.github.cidarosa.ms.pedidos.dto.ItemDoPedidoResponseDto;
+import com.github.cidarosa.ms.pedidos.dto.PedidoResponseDto;
 import com.github.cidarosa.ms.pedidos.entities.ItemDoPedido;
 import com.github.cidarosa.ms.pedidos.entities.Pedido;
 import com.github.cidarosa.ms.pedidos.entities.Status;
@@ -28,24 +28,24 @@ public class PedidoService {
     private ItemDoPedidoRepository itemDoPedidoRepository;
 
     @Transactional(readOnly = true)
-    public List<PedidoDto> findAllPedidos() {
+    public List<PedidoResponseDto> findAllPedidos() {
 
         return pedidoRepository.findAll()
-                .stream().map(PedidoDto::new).toList();
+                .stream().map(PedidoResponseDto::new).toList();
     }
 
     @Transactional(readOnly = true)
-    public PedidoDto findPedidoById(Long id) {
+    public PedidoResponseDto findPedidoById(Long id) {
 
         Pedido pedido = pedidoRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Recurso não encontrado. Id: " + id)
         );
 
-        return new PedidoDto(pedido);
+        return new PedidoResponseDto(pedido);
     }
 
     @Transactional
-    public PedidoDto savePedido(PedidoDto pedidoDto) {
+    public PedidoResponseDto savePedido(PedidoResponseDto pedidoDto) {
 
         Pedido pedido = new Pedido();
         pedido.setData(LocalDate.now());
@@ -53,11 +53,11 @@ public class PedidoService {
         mapDtoToPedido(pedidoDto, pedido);
         pedido.calcularValorTotalDoPedido();
         pedido = pedidoRepository.save(pedido);
-        return new PedidoDto(pedido);
+        return new PedidoResponseDto(pedido);
     }
 
     @Transactional
-    public PedidoDto updatePedido(Long id, PedidoDto pedidoDto) {
+    public PedidoResponseDto updatePedido(Long id, PedidoResponseDto pedidoDto) {
 
         try {
             Pedido pedido = pedidoRepository.getReferenceById(id);
@@ -74,7 +74,7 @@ public class PedidoService {
             mapDtoToPedido(pedidoDto, pedido);
             pedido.calcularValorTotalDoPedido();
             pedido = pedidoRepository.save(pedido);
-            return new PedidoDto(pedido);
+            return new PedidoResponseDto(pedido);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Recurso não encontrado. Id: " + id);
         }
@@ -102,12 +102,12 @@ public class PedidoService {
         pedidoRepository.save(pedido.get());
     }
 
-    private void mapDtoToPedido(PedidoDto pedidoDto, Pedido pedido) {
+    private void mapDtoToPedido(PedidoResponseDto pedidoDto, Pedido pedido) {
 
         pedido.setNome(pedidoDto.getNome());
         pedido.setCpf(pedidoDto.getCpf());
 
-        for (ItemDoPedidoDto itemDTO : pedidoDto.getItens()) {
+        for (ItemDoPedidoResponseDto itemDTO : pedidoDto.getItens()) {
 
             ItemDoPedido itemPedido = new ItemDoPedido();
             itemPedido.setQuantidade(itemDTO.getQuantidade());

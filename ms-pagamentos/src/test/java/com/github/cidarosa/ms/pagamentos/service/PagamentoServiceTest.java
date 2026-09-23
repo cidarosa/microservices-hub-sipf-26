@@ -1,6 +1,6 @@
 package com.github.cidarosa.ms.pagamentos.service;
 
-import com.github.cidarosa.ms.pagamentos.dto.PagamentoDTO;
+import com.github.cidarosa.ms.pagamentos.dto.PagamentoResponseDTO;
 import com.github.cidarosa.ms.pagamentos.entities.Pagamento;
 import com.github.cidarosa.ms.pagamentos.exceptions.ResourceNotFoundException;
 import com.github.cidarosa.ms.pagamentos.repository.PagamentoRepository;
@@ -74,7 +74,7 @@ public class PagamentoServiceTest {
                 .thenReturn(Optional.of(pagamento)
                 );
 
-        PagamentoDTO result = pagamentoService.findPagamentoById(existingId);
+        PagamentoResponseDTO result = pagamentoService.findPagamentoById(existingId);
         Assertions.assertNotNull(result);
         ;
         Assertions.assertEquals(pagamento.getId(), result.getId());
@@ -105,9 +105,9 @@ public class PagamentoServiceTest {
         Mockito.when(pagamentoRepository.save(any(Pagamento.class)))
                 .thenReturn(pagamento);
 
-        PagamentoDTO inputDTO = new PagamentoDTO(pagamento);
+        PagamentoResponseDTO inputDTO = new PagamentoResponseDTO(pagamento);
 
-        PagamentoDTO result = pagamentoService.savePagamento(inputDTO);
+        PagamentoResponseDTO result = pagamentoService.savePagamento(inputDTO);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(pagamento.getId(), result.getId());
@@ -127,7 +127,7 @@ public class PagamentoServiceTest {
         Mockito.when(pagamentoRepository.save(any(Pagamento.class)))
                 .thenReturn(pagamento);
 
-        PagamentoDTO result = pagamentoService.update(id, new PagamentoDTO(pagamento));
+        PagamentoResponseDTO result = pagamentoService.update(id, new PagamentoResponseDTO(pagamento));
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(id, result.getId());
@@ -143,7 +143,7 @@ public class PagamentoServiceTest {
         Mockito.when(pagamentoRepository.getReferenceById(nonExistingId))
                 .thenThrow(ResourceNotFoundException.class);
 
-        PagamentoDTO inputDTO = new PagamentoDTO(pagamento);
+        PagamentoResponseDTO inputDTO = new PagamentoResponseDTO(pagamento);
 
         Assertions.assertThrows(ResourceNotFoundException.class,
                 () -> pagamentoService.update(nonExistingId, inputDTO)
